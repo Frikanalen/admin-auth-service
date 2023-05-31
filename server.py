@@ -75,13 +75,13 @@ observer.start()
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        with open('user_db.txt', 'r') as f:
-            for line in f:
-                username, password = line.strip().split(':')
-                if form.username.data == username and check_password_hash(password, form.password.data):
-                    session['username'] = form.username.data
-                    logger.info('User logged in', extra={'user': form.username.data})
-                    return redirect(request.args.get('next') or url_for('index'))
+        username = form.username.data
+        password = form.password.data
+        if validate_user(username, password):
+            session['username'] = form.username.data
+            logger.info('User logged in', extra={'user': form.username.data})
+            return redirect(request.args.get('next') or url_for('index'))
+        else:
             logger.warning('Invalid login attempt', extra={'user': form.username.data})
             return 'Invalid username or password'
     return render_template('login.html', form=form)

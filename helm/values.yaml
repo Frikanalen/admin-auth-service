@@ -3,7 +3,7 @@ replicaCount: 1
 image:
   repository: frikanalen/admin-auth-service
   tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 env: "production"
 loginUrl: "https://login.admin.frikanalen.no"
