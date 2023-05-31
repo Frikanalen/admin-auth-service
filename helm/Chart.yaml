@@ -1,0 +1,5 @@
+apiVersion: v2
+name: admin-auth-service
+description: Authentication microservice for admin dashboards
+version: 1.0.0
+appVersion: 1.0.0

@@ -1,0 +1,21 @@
+replicaCount: 1
+
+image:
+  repository: frikanalen/admin-auth-service
+  tag: latest
+  pullPolicy: IfNotPresent
+
+env: "production"
+loginUrl: "https://login.admin.frikanalen.no"
+
+resources: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  loginUrl: "https://login.admin.frikanalen.no"
+
+#secretKey: ""
