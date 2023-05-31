@@ -1,20 +1,49 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Login</title>
-</head>
-<body>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.username.label }}<br>
-            {{ form.username(size=32) }}
-        </p>
-        <p>
-            {{ form.password.label }}<br>
-            {{ form.password(size=32) }}
-        </p>
-        <p>{{ form.submit() }}</p>
-    </form>
-</body>
+    <style>
+
+body {
+	margin:0;
+	padding: 0;
+}
+
+.outer {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  height: 100dvh;
+  width: 100vw;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.inner {
+	border: 2px solid black;
+	padding: 1rem;
+
+}
+    </style>
+  </head>
+  <body>
+    <div class="outer">
+      <div class="inner">
+        <h1>Admin login</h1>
+        <form method="POST">
+          {{ form.hidden_tag() }}
+          <p>
+          {{ form.username.label }}<br>
+          {{ form.username(size=32) }}
+          </p>
+          <p>
+          {{ form.password.label }}<br>
+          {{ form.password(size=32) }}
+          </p>
+          <p>{{ form.submit() }}</p>
+        </form>
+      </div>
+    </div>
+  </body>
 </html>
