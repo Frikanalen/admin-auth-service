@@ -28,31 +28,34 @@ The application is deployed using Helm, a package manager for Kubernetes. To dep
 ```bash
 git clone https://github.com/frikanalen/admin-auth-service.git
 cd admin-auth-service
+```
+
 Install the Helm chart:
-bash
-Copy code
+
+```bash
 helm install admin-auth-service helm-chart/admin-auth-service
+```
 This will deploy the application with the default values. To customize the deployment, you can create a values.yaml file with your own values and pass it to the helm install command:
 
-bash
-Copy code
+```bash
 helm install admin-auth-service helm-chart/admin-auth-service -f my-values.yaml
+```
 Replace my-values.yaml with the path to your values.yaml file.
 
-Helm Configuration
+### Helm Configuration
 The Helm chart has the following configurable values:
 
-replicaCount: The number of replicas of the application to run.
-image.repository: The Docker image repository.
-image.tag: The Docker image tag.
-image.pullPolicy: The Docker image pull policy.
-env: The environment in which the application is running.
-loginUrl: The URL to which the user is redirected if their session is not valid.
-resources: The resources to allocate to the application.
-service.type: The type of the service.
-service.port: The port of the service.
-ingress.enabled: Whether to create an Ingress for the application.
-ingress.hostname: The hostname for the Ingress.
-secretKey: The secret key for the Flask app. If not provided, a random key will be generated.
+* replicaCount: The number of replicas of the application to run.
+* image.repository: The Docker image repository.
+* image.tag: The Docker image tag.
+* image.pullPolicy: The Docker image pull policy.
+* env: The environment in which the application is running.
+* loginUrl: The URL to which the user is redirected if their session is not valid.
+* resources: The resources to allocate to the application.
+* service.type: The type of the service.
+* service.port: The port of the service.
+* ingress.enabled: Whether to create an Ingress for the application.
+* ingress.hostname: The hostname for the Ingress.
+* secretKey: The secret key for the Flask app. If not provided, a random key will be generated.
 
 For more information on how to configure these values, see the values.yaml file in the helm-chart/admin-auth-service directory.
