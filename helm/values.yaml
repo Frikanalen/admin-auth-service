@@ -16,6 +16,6 @@ service:
 
 ingress:
   enabled: true
-  loginUrl: "https://login.admin.frikanalen.no"
+  hostname: "login.admin.frikanalen.no"
 
 #secretKey: ""

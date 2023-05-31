@@ -10,7 +10,11 @@ This repository includes a utility script named mkhash.py that helps you generat
 When you run this script, it will prompt you for a username and password.
 It will then hash the password and print out a line in the format username:passwordhash.
 You can add this line to your user database file (users).
-To run the script, use the following command: python mkhash.py.
+To run the script, use the following command: 
+
+```python mkhash.py > users
+kubectl create secret generic admin-auth-service-secret --from-file=users --dry-run=client -o yaml | kubectl apply -f -
+```
  
 ## Environment Variables
 

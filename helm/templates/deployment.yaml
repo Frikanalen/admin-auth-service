@@ -17,7 +17,7 @@ spec:
       volumes:
         - name: admin-users
           secret:
-            secretName: admin-users
+            secretName: admin-auth-service-secret
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -44,6 +44,6 @@ spec:
             - name: ENV
               value: {{ .Values.env }}
             - name: LOGIN_URL
-              value: {{ .Values.ingress.hostname }}
+              value: https://{{ .Values.ingress.hostname }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

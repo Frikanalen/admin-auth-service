@@ -1,6 +1,7 @@
 import logging
 import os
 import json_log_formatter
+import sys
 
 from flask import Flask, request, redirect, session, render_template
 from werkzeug.security import check_password_hash
@@ -33,7 +34,7 @@ with open('/data/secret_key', 'r') as f:
 login_url = os.getenv('LOGIN_URL', None)
 if not login_url:
     logging.error("Missing mandatory environment variable LOGIN_URL, quitting!")
-    exit(1)
+    sys.exit(4)
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -54,7 +55,7 @@ def load_user_db():
     with open('/data/users', 'r') as f:
         user_db = {}
         for line in f:
-            username, password = line.strip().split(':')
+            username, password = line.strip().split(':', 1)
             user_db[username] = password
         if not user_db:
             logger.warning('No users in database!')
