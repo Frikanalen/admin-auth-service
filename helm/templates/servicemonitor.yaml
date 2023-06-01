@@ -1,0 +1,20 @@
+{{- if .Values.prometheusRule.enabled -}}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "helm.fullname" . }}
+  labels:
+    {{- include .Values.prometheusRule.additionalLabels . | nindent 4 }}
+spec:
+  groups:
+    - name: deployment-readiness-alert
+      rules:
+        - alert: DeploymentNotReady
+          expr: kube_deployment_status_ready{condition="true", deployment="{{ include "helm.fullname" . }}"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Admin auth service deployment is not ready"
+            description: "No pod has been ready for more than 2 minutes."
+{{- end }}

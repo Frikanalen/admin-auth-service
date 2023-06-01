@@ -6,7 +6,6 @@ image:
   pullPolicy: Always
 
 env: "production"
-loginUrl: "https://login.admin.frikanalen.no"
 
 resources: {}
 
@@ -17,5 +16,8 @@ service:
 ingress:
   enabled: true
   hostname: "login.admin.frikanalen.no"
+  tls: true
 
-#secretKey: ""
+prometheusRule:
+  enabled: true
+  additionalLabels: {}

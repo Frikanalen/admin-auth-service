@@ -1,65 +1,45 @@
-# admin-auth-service
-Microservice to authenticate users for admin dashboards
+# Go Authentication Service
 
-This is a Python Flask application that serves as an authentication service.
-It uses Traefik's ForwardAuth mechanism to protect services behind a Traefik ingress controller.
+This is a lightweight, general-purpose utility designed to securely restrict access to admin dashboards using Traefik's ForwardAuth middleware. It is written in Go and uses the `go-session` and `logrus` libraries for session management and logging respectively.
 
-## User database
+## Getting Started
 
-This repository includes a utility script named mkhash.py that helps you generate user data in the format expected by the application.
-When you run this script, it will prompt you for a username and password.
-It will then hash the password and print out a line in the format username:passwordhash.
-You can add this line to your user database file (users).
-To run the script, use the following command: 
+These instructions will help you set up the service and run it on your local machine or a Kubernetes cluster.
 
-```python mkhash.py > users
-kubectl create secret generic admin-auth-service-secret --from-file=users --dry-run=client -o yaml | kubectl apply -f -
-```
- 
-## Environment Variables
+#### Creating the Secret
 
-The application uses the following environment variables:
-
-- `ENV`: The environment in which the application is running. "development" or "production"
-- `LOGIN_URL`: The URL to which the user is redirected if their session is not valid.
-
-## Deployment
-
-The application is deployed using Helm, a package manager for Kubernetes. To deploy the application, follow these steps:
-
-1. Clone the repository:
+If you are deploying the service for the first time, you need to create a Kubernetes secret to store `hash_key` and `password`. Here's how you can do it:
 
 ```bash
-git clone https://github.com/frikanalen/admin-auth-service.git
-cd admin-auth-service
+kubectl create secret generic <secret-name> --from-file=hash_key=<path-to-hash-key> --from-file=password=<path-to-password>
 ```
+Replace <secret-name> with the name you want to give to your secret, <path-to-hash-key> with the path to your hash key file, and <path-to-password> with the path to your password file.
 
-Install the Helm chart:
+After creating the secret, you can install the Helm chart as described above.
+
+### Building the Docker image
+
+The provided Dockerfile allows you to build a Docker image of the service. Run the following command in the directory containing the Dockerfile:
 
 ```bash
-helm install admin-auth-service helm-chart/admin-auth-service
+docker build -t go-auth-service:latest .
 ```
-This will deploy the application with the default values. To customize the deployment, you can create a values.yaml file with your own values and pass it to the helm install command:
+Running the service
+To run the service, use the following Docker command:
 
 ```bash
-helm install admin-auth-service helm-chart/admin-auth-service -f my-values.yaml
+docker run -p 8080:8080 go-auth-service:latest
 ```
-Replace my-values.yaml with the path to your values.yaml file.
+Kubernetes Deployment
+The service is configured to read secrets from a Kubernetes secret, which should be mounted at /secrets. The secrets should include hash_key and password.
 
-### Helm Configuration
-The Helm chart has the following configurable values:
+To update the Kubernetes secret, you can use the following one-liner:
 
-* replicaCount: The number of replicas of the application to run.
-* image.repository: The Docker image repository.
-* image.tag: The Docker image tag.
-* image.pullPolicy: The Docker image pull policy.
-* env: The environment in which the application is running.
-* loginUrl: The URL to which the user is redirected if their session is not valid.
-* resources: The resources to allocate to the application.
-* service.type: The type of the service.
-* service.port: The port of the service.
-* ingress.enabled: Whether to create an Ingress for the application.
-* ingress.hostname: The hostname for the Ingress.
-* secretKey: The secret key for the Flask app. If not provided, a random key will be generated.
+```bash
+kubectl patch secret <secret-name> -p='{"data":{"password": "'$(echo -n 'new-password' | base64)'"}}'
+```
 
-For more information on how to configure these values, see the values.yaml file in the helm-chart/admin-auth-service directory.
+Just replace <secret-name> with the name of your secret and 'new-password' with the new password.
+
+Remember to restart any pods that are using the secret to ensure they use the updated values.
+

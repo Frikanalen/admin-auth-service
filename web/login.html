@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Login</title>
+    <style>
+        body {
+            background-color: black;
+            color: #00ff00;
+            display: flex;
+            margin: 0;
+            padding: 0;
+            font-family: monospace;
+            height: 95svh;
+        }
+
+        #outer {
+            display: flex;
+            flex-grow: 1;
+            padding: 1rem;
+            justify-content: center;
+            align-items: center;
+       }
+
+        #inner {
+            border: 2px solid #00ff00;
+            max-width: 600px;
+            flex-grow: 1;
+            font-size: 18pt;
+            padding: 2rem;
+            gap: 1rem;
+            flex-direction: column;
+            display: flex;
+        }
+
+        h1 {
+            font-size: 20pt;
+            text-align: center;
+        }
+
+        input[type=password] {
+            width: 100%;
+            padding: 12px 0;
+        }
+
+        input[type=submit] {
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            background-color: black;
+            padding: 16px 32px;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            font-family: monospace;
+            cursor: pointer;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="outer">
+    <form method="post" action="/auth">
+        <div id="inner">
+
+        <h1><label for="secretKey">{{.Message}}</label></h1>
+        <input type="hidden" name="next_url" value="{{.NextUrl}}">
+        <input type="password" id="secretKey" name="secretKey"><br>
+        <input type="submit" value="Submit">
+        </div>
+
+    </form>
+</div>
+</body>
+</html>

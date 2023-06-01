@@ -1,17 +1,33 @@
-# Use an official Python runtime as a parent image
-FROM python:3.9-slim-buster
+# Start from the latest golang base image
+FROM golang:latest AS builder
 
-# Set the working directory in the container to /app
+# Set the Current Working Directory inside the container
 WORKDIR /app
 
-# Add the current directory contents into the container at /app
-ADD . /app
+# Copy go mod and sum files
+COPY go.mod go.sum ./
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+# Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
+RUN go mod download
 
-# Make port 8080 available to the world outside this container
+# Copy the source from the current directory to the Working Directory inside the container
+COPY . .
+
+# Build the Go app
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+
+######## Start a new stage from scratch #######
+FROM alpine:latest
+
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /root/
+
+# Copy the Pre-built binary file from the previous stage
+COPY --from=builder /app/main .
+
+# Expose port 8080 to the outside world
 EXPOSE 8080
 
-# Run server.py when the container launches
-CMD ["gunicorn", "-b", "0.0.0.0:8080", "server:app"]
+# Command to run the executable
+CMD ["./main"]

@@ -17,10 +17,10 @@ spec:
       volumes:
         - name: admin-users
           secret:
-            secretName: admin-auth-service-secret
+            secretName: {{ include "helm.fullname" . }}-secret
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default "latest" }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           volumeMounts:
             - name: admin-users
