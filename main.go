@@ -152,7 +152,10 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		if authenticate(secretKey) {
 			logWithFields(r).Info("Login successful.")
 			store.Set("authenticated", true)
-			log.Error(store.Save())
+			err = store.Save()
+			if err != nil {
+				log.Error("could not save session, %v", err)
+			}
 			nextUrl := r.FormValue("next_url")
 			if nextUrl == "" {
 				nextUrl = "/auth"
