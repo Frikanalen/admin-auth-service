@@ -58,9 +58,8 @@
 </head>
 <body>
 <div id="outer">
-    <form method="post" action="/auth">
+    <form method="post" action="/login">
         <div id="inner">
-
         <h1><label for="secretKey">{{.Message}}</label></h1>
         <input type="hidden" name="next_url" value="{{.NextUrl}}">
         <input type="password" id="secretKey" name="secretKey"><br>
