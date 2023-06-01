@@ -81,12 +81,18 @@ func main() {
 	http.HandleFunc("/auth", authHandler)
 	http.HandleFunc("/login", loginHandler)
 	http.HandleFunc("/healthz", healthzHandler)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	err = http.ListenAndServe(":8080", nil)
+	if err != nil {
+		log.Fatalf("could not listen, %v", err)
+	}
 }
 
 func healthzHandler(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	log.Fatal(fmt.Fprintln(w, "OK"))
+	_, err := fmt.Fprintln(w, "OK")
+	if err != nil {
+		log.Fatalf("could not write to healthz, %v", err)
+	}
 }
 
 func authHandler(w http.ResponseWriter, r *http.Request) {
