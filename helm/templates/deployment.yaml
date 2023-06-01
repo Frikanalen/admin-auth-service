@@ -41,6 +41,8 @@ spec:
               port: http
             initialDelaySeconds: 5
           env:
+            - name: COOKIE_DOMAIN
+              value: {{ .Values.cookieDomain }}
             - name: ENV
               value: {{ .Values.env }}
             - name: AUTH_SERVICE_URL

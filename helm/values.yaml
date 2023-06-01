@@ -13,6 +13,9 @@ service:
   type: ClusterIP
   port: 8080
 
+cookieDomain: "admin.frikanalen.no"
+password: "asdf"
+
 ingress:
   enabled: true
   hostname: "admin.frikanalen.no"

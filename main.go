@@ -1,27 +1,26 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
-	"github.com/go-session/cookie"
-	"github.com/go-session/session"
+	"github.com/alexedwards/scs/v2"
 	"github.com/sirupsen/logrus"
 	"html/template"
 	"net/http"
 	"net/url"
 	"os"
+	"time"
 )
 
 var log = logrus.New()
+var sessionManager *scs.SessionManager
 
 var (
-	hashKeyFilePath  = flag.String("hashKey", "/secrets/hash_key", "File path for the hash key")
 	passwordFilePath = flag.String("password", "/secrets/password", "File path for the password")
-	hashKey          []byte
 	password         string
 	environment      = os.Getenv("ENV")
 	authServiceUrl   = os.Getenv("AUTH_SERVICE_URL")
+	cookieDomain     = os.Getenv("COOKIE_DOMAIN")
 )
 
 type LoginPageData struct {
@@ -55,6 +54,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	if cookieDomain == "" {
+		log.Fatalf("Environment variable COOKIE_DOMAIN is not set")
+		os.Exit(1)
+	}
+
 	if environment == "production" {
 		log.Formatter = &logrus.JSONFormatter{}
 	} else {
@@ -65,12 +69,6 @@ func main() {
 	flag.Parse()
 
 	var err error
-	hashKey, err = os.ReadFile(*hashKeyFilePath)
-	if err != nil {
-		log.Fatalf("Failed to read hash key file: %v", err)
-		os.Exit(1)
-	}
-	log.Infof("Reading hash key from %s", *hashKeyFilePath)
 
 	passwordBytes, err := os.ReadFile(*passwordFilePath)
 	if err != nil {
@@ -80,20 +78,17 @@ func main() {
 	log.Infof("Reading password from %s", *passwordFilePath)
 	password = string(passwordBytes)
 
-	session.InitManager(
-		session.SetStore(
-			cookie.NewCookieStore(
-				cookie.SetCookieName("fk-admin-auth"),
-				cookie.SetHashKey(hashKey),
-				cookie.SetSecure(true),
-			),
-		),
-	)
+	sessionManager = scs.New()
+	sessionManager.Lifetime = 6000 * time.Hour
+	sessionManager.Cookie.Domain = cookieDomain
+	sessionManager.Cookie.Secure = true
+	sessionManager.Cookie.HttpOnly = true
 
-	http.HandleFunc("/auth", authHandler)
-	http.HandleFunc("/login", loginHandler)
-	http.HandleFunc("/healthz", healthzHandler)
-	err = http.ListenAndServe(":8080", nil)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/auth", authHandler)
+	mux.HandleFunc("/login", loginHandler)
+	mux.HandleFunc("/healthz", healthzHandler)
+	err = http.ListenAndServe(":8080", sessionManager.LoadAndSave(mux))
 	if err != nil {
 		log.Fatalf("could not listen, %v", err)
 	}
@@ -109,22 +104,9 @@ func healthzHandler(w http.ResponseWriter, _ *http.Request) {
 
 func authHandler(w http.ResponseWriter, r *http.Request) {
 	logWithFields(r).Debug("Auth handler")
-	store, err := session.Start(context.Background(), w, r)
-	if err != nil {
-		log.Error(err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
+	isAuthenticated := sessionManager.GetBool(r.Context(), "authenticated")
 
-	value, found := store.Get("authenticated")
-	if !found {
-		logWithFields(r).Info("No valid session found. Redirecting to login.")
-		redirectToLogin(w, r)
-		return
-	}
-
-	isAuthenticated, ok := value.(bool)
-	if !ok || !isAuthenticated {
+	if !isAuthenticated {
 		logWithFields(r).Info("Session is not authenticated. Redirecting to login.")
 		redirectToLogin(w, r)
 		return
@@ -132,30 +114,16 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 
 	logWithFields(r).Info("Session is authenticated.")
 	w.WriteHeader(http.StatusOK)
-	_, err = w.Write([]byte("Authenticated!"))
-	if err != nil {
-		log.Fatalf("could not write response, %v", err)
-	}
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-	store, err := session.Start(context.Background(), w, r)
-	if err != nil {
-		log.Error(err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
 
 	if r.Method == "POST" {
 		secretKey := r.FormValue("secretKey")
 
 		if authenticate(secretKey) {
 			logWithFields(r).Info("Login successful.")
-			store.Set("authenticated", true)
-			err = store.Save()
-			if err != nil {
-				log.Error("could not save session, %v", err)
-			}
+			sessionManager.Put(r.Context(), "authenticated", true)
 			nextUrl := r.FormValue("next_url")
 			if nextUrl == "" {
 				nextUrl = "/auth"
