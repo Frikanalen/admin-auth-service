@@ -87,6 +87,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/auth", authHandler)
 	mux.HandleFunc("/login", loginHandler)
+	mux.HandleFunc("/logout", logoutHandler)
 	mux.HandleFunc("/healthz", healthzHandler)
 	err = http.ListenAndServe(":8080", sessionManager.LoadAndSave(mux))
 	if err != nil {
@@ -103,7 +104,6 @@ func healthzHandler(w http.ResponseWriter, _ *http.Request) {
 }
 
 func authHandler(w http.ResponseWriter, r *http.Request) {
-	logWithFields(r).Debug("Auth handler")
 	isAuthenticated := sessionManager.GetBool(r.Context(), "authenticated")
 
 	if !isAuthenticated {
@@ -112,12 +112,15 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logWithFields(r).Info("Session is authenticated.")
+	logWithFields(r).Debug("Session is authenticated.")
 	w.WriteHeader(http.StatusOK)
 }
 
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	sessionManager.Put(r.Context(), "authenticated", false)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-
 	if r.Method == "POST" {
 		secretKey := r.FormValue("secretKey")
 
