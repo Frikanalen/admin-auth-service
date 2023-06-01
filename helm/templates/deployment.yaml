@@ -24,7 +24,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           volumeMounts:
             - name: admin-users
-              mountPath: /data
+              mountPath: /secrets
           ports:
             - name: http
               containerPort: 8080
