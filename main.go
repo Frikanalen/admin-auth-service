@@ -132,7 +132,10 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 
 	logWithFields(r).Info("Session is authenticated.")
 	w.WriteHeader(http.StatusOK)
-	log.Error(w.Write([]byte("Authenticated!")))
+	_, err = w.Write([]byte("Authenticated!"))
+	if err != nil {
+		log.Fatalf("could not write response, %v", err)
+	}
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
