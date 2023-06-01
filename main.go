@@ -85,6 +85,7 @@ func main() {
 			cookie.NewCookieStore(
 				cookie.SetCookieName("fk-admin-auth"),
 				cookie.SetHashKey(hashKey),
+				cookie.SetSecure(true),
 			),
 		),
 	)

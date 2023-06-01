@@ -15,7 +15,7 @@ service:
 
 ingress:
   enabled: true
-  hostname: "login.admin.frikanalen.no"
+  hostname: "admin.frikanalen.no"
   tls: true
 
 prometheusRule:
