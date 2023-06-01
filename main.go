@@ -30,12 +30,23 @@ type LoginPageData struct {
 }
 
 func logWithFields(r *http.Request) *logrus.Entry {
-	ip := r.Header.Get("X-Forwarded-For")
-	uri := r.Header.Get("X-Forwarded-Uri")
 	return log.WithFields(logrus.Fields{
-		"IP":  ip,
-		"URI": uri,
+		"client": r.Header.Get("X-Forwarded-For"),
+		"url":    fullRequestUrl(r),
 	})
+}
+
+func fullRequestUrl(r *http.Request) string {
+	proto := r.Header.Get("X-Forwarded-Proto")
+	host := r.Header.Get("X-Forwarded-Host")
+	port := r.Header.Get("X-Forwarded-Port")
+	uri := r.Header.Get("X-Forwarded-Uri")
+
+	if port == "" {
+		return fmt.Sprintf("%s://%s%s", proto, host, uri)
+	} else {
+		return fmt.Sprintf("%s://%s:%s%s", proto, host, port, uri)
+	}
 }
 
 func main() {
@@ -172,7 +183,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func redirectToLogin(w http.ResponseWriter, r *http.Request) {
-	escapedNextUrl := url.QueryEscape(r.Header.Get("X-Forwarded-Uri"))
+	escapedNextUrl := url.QueryEscape(fullRequestUrl(r))
 	loginUrl := fmt.Sprintf("%s/login?next_url=%s", authServiceUrl, escapedNextUrl)
 
 	http.Redirect(w, r, loginUrl, http.StatusSeeOther)
