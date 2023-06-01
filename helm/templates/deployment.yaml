@@ -44,6 +44,6 @@ spec:
             - name: ENV
               value: {{ .Values.env }}
             - name: AUTH_SERVICE_URL
-              value: https://{{ .Values.ingress.hostname }}/login
+              value: https://{{ .Values.ingress.hostname }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
