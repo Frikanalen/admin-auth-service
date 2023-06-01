@@ -172,8 +172,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func redirectToLogin(w http.ResponseWriter, r *http.Request) {
-	nextUrl := r.Header.Get("X-Forwarded-Uri")
-	escapedNextUrl := url.QueryEscape(nextUrl)
+	escapedNextUrl := url.QueryEscape(r.Header.Get("X-Forwarded-Uri"))
 	loginUrl := fmt.Sprintf("%s/login?next_url=%s", authServiceUrl, escapedNextUrl)
 
 	http.Redirect(w, r, loginUrl, http.StatusSeeOther)

@@ -5,4 +5,4 @@ metadata:
   namespace: default
 spec:
   forwardAuth:
-    address: https://login.admin.frikanalen.no/auth
+    address: http://{{ include "helm.fullname" . }}:{{ .Values.service.port }}/auth
