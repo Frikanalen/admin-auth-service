@@ -3,8 +3,6 @@ apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   name: {{ include "helm.fullname" . }}
-  labels:
-    {{- include .Values.prometheusRule.additionalLabels . | nindent 4 }}
 spec:
   groups:
     - name: deployment-readiness-alert

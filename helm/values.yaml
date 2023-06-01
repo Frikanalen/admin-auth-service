@@ -20,4 +20,3 @@ ingress:
 
 prometheusRule:
   enabled: true
-  additionalLabels: {}
