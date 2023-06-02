@@ -123,11 +123,11 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		secretKey := r.FormValue("secretKey")
+		nextUrl := r.FormValue("nextUrl")
 
 		if authenticate(secretKey) {
-			logWithFields(r).Info("Login successful.")
+			logWithFields(r).WithField("nextUrl", nextUrl).Info("Login successful.")
 			sessionManager.Put(r.Context(), "authenticated", true)
-			nextUrl := r.FormValue("next_url")
 			if nextUrl == "" {
 				nextUrl = "/auth"
 			}
@@ -136,7 +136,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		logWithFields(r).Warn("Failed login attempt.")
 	}
-	nextUrl := r.URL.Query().Get("next_url")
+	nextUrl := r.URL.Query().Get("nextUrl")
 
 	logWithFields(r).Infof("Showing login page.")
 
@@ -162,7 +162,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 func redirectToLogin(w http.ResponseWriter, r *http.Request) {
 	escapedNextUrl := url.QueryEscape(fullRequestUrl(r))
-	loginUrl := fmt.Sprintf("%s/login?next_url=%s", authServiceUrl, escapedNextUrl)
+	loginUrl := fmt.Sprintf("%s/login?nextUrl=%s", authServiceUrl, escapedNextUrl)
 
 	http.Redirect(w, r, loginUrl, http.StatusSeeOther)
 }
